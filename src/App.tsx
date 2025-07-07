@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import { DataProvider } from "./context/DataContext";
 import Login from "./components/auth/Login";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -25,8 +25,6 @@ const Dashboard = () => {
 };
 
 const DashboardContent = () => {
-  // This component will be inside the AuthProvider context
-  const { useAuth } = require('./context/AuthContext');
   const { user } = useAuth();
 
   switch (user?.role) {
