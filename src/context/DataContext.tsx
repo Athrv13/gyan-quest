@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 
 export interface Student {
@@ -80,7 +79,8 @@ type DataAction =
   | { type: 'DELETE_CLASS'; payload: string }
   | { type: 'ADD_GRADE'; payload: Grade }
   | { type: 'UPDATE_GRADE'; payload: Grade }
-  | { type: 'ADD_ATTENDANCE'; payload: Attendance };
+  | { type: 'ADD_ATTENDANCE'; payload: Attendance }
+  | { type: 'DELETE_ATTENDANCE'; payload: string };
 
 // Initial dummy data
 const initialState: DataState = {
@@ -392,16 +392,21 @@ const dataReducer = (state: DataState, action: DataAction): DataState => {
         teachers: state.teachers.filter(t => t.id !== action.payload)
       };
     case 'ADD_CLASS':
-      return { ...state, classes: [...state.classes, action.payload] };
+      return {
+        ...state,
+        classes: [...state.classes, action.payload]
+      };
     case 'UPDATE_CLASS':
       return {
         ...state,
-        classes: state.classes.map(c => c.id === action.payload.id ? action.payload : c)
+        classes: state.classes.map(cls => 
+          cls.id === action.payload.id ? action.payload : cls
+        )
       };
     case 'DELETE_CLASS':
       return {
         ...state,
-        classes: state.classes.filter(c => c.id !== action.payload)
+        classes: state.classes.filter(cls => cls.id !== action.payload)
       };
     case 'ADD_GRADE':
       return { ...state, grades: [...state.grades, action.payload] };
@@ -412,6 +417,11 @@ const dataReducer = (state: DataState, action: DataAction): DataState => {
       };
     case 'ADD_ATTENDANCE':
       return { ...state, attendance: [...state.attendance, action.payload] };
+    case 'DELETE_ATTENDANCE':
+      return {
+        ...state,
+        attendance: state.attendance.filter(att => att.id !== action.payload)
+      };
     default:
       return state;
   }

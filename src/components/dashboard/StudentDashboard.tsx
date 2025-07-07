@@ -1,11 +1,11 @@
-
 import React, { useState } from 'react';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, BookOpen, FileText, Clock } from 'lucide-react';
+import { Progress } from "@/components/ui/progress";
+import { Calendar, BookOpen, FileText, Clock, Award, TrendingUp, Target, User } from 'lucide-react';
 
 const StudentDashboard = () => {
   const { state } = useData();
@@ -19,48 +19,90 @@ const StudentDashboard = () => {
   const enrolledClasses = state.classes.filter(c => c.enrolledStudents.includes(student?.id || ''));
 
   const calculateGPA = () => {
-    if (studentGrades.length === 0) return 'N/A';
+    if (studentGrades.length === 0) return { gpa: 'N/A', letter: 'N/A' };
     const totalPercentage = studentGrades.reduce((acc, grade) => acc + (grade.score / grade.maxScore * 100), 0);
     const avgPercentage = totalPercentage / studentGrades.length;
-    return (avgPercentage / 25).toFixed(2); // Convert to 4.0 scale
+    const gpa = (avgPercentage / 25).toFixed(2); // Convert to 4.0 scale
+    
+    let letter = 'F';
+    if (avgPercentage >= 97) letter = 'A+';
+    else if (avgPercentage >= 93) letter = 'A';
+    else if (avgPercentage >= 90) letter = 'A-';
+    else if (avgPercentage >= 87) letter = 'B+';
+    else if (avgPercentage >= 83) letter = 'B';
+    else if (avgPercentage >= 80) letter = 'B-';
+    else if (avgPercentage >= 77) letter = 'C+';
+    else if (avgPercentage >= 73) letter = 'C';
+    else if (avgPercentage >= 70) letter = 'C-';
+    else if (avgPercentage >= 67) letter = 'D+';
+    else if (avgPercentage >= 65) letter = 'D';
+    
+    return { gpa, letter, percentage: Math.round(avgPercentage) };
   };
 
   const getAttendanceRate = () => {
-    if (studentAttendance.length === 0) return 'N/A';
+    if (studentAttendance.length === 0) return { rate: 'N/A', present: 0, total: 0 };
     const presentCount = studentAttendance.filter(a => a.status === 'present').length;
-    return Math.round((presentCount / studentAttendance.length) * 100);
+    const rate = Math.round((presentCount / studentAttendance.length) * 100);
+    return { rate, present: presentCount, total: studentAttendance.length };
   };
+
+  const getRecentActivity = () => {
+    const recentGrades = studentGrades.slice(-5);
+    const recentAttendance = studentAttendance.slice(-10);
+    
+    const activity = [
+      ...recentGrades.map(grade => ({
+        type: 'grade',
+        date: grade.date,
+        data: grade,
+        class: state.classes.find(c => c.id === grade.classId)
+      })),
+      ...recentAttendance.map(att => ({
+        type: 'attendance',
+        date: att.date,
+        data: att,
+        class: state.classes.find(c => c.id === att.classId)
+      }))
+    ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 8);
+    
+    return activity;
+  };
+
+  const gpaData = calculateGPA();
+  const attendanceData = getAttendanceRate();
+  const recentActivity = getRecentActivity();
 
   const stats = [
     {
-      title: 'My Classes',
+      title: 'Enrolled Classes',
       value: enrolledClasses.length,
-      description: 'Enrolled classes',
-      icon: Calendar,
+      description: 'Active enrollments',
+      icon: BookOpen,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
     },
     {
       title: 'Current GPA',
-      value: calculateGPA(),
-      description: 'Grade point average',
-      icon: BookOpen,
+      value: gpaData.gpa,
+      description: `${gpaData.letter} Grade • ${gpaData.percentage}%`,
+      icon: Award,
       color: 'text-green-600',
       bgColor: 'bg-green-100',
     },
     {
-      title: 'Total Grades',
+      title: 'Total Assessments',
       value: studentGrades.length,
-      description: 'Recorded grades',
+      description: 'Completed assessments',
       icon: FileText,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100',
     },
     {
       title: 'Attendance Rate',
-      value: `${getAttendanceRate()}%`,
-      description: 'Class attendance',
-      icon: Clock,
+      value: `${attendanceData.rate}%`,
+      description: `${attendanceData.present}/${attendanceData.total} classes`,
+      icon: Calendar,
       color: 'text-orange-600',
       bgColor: 'bg-orange-100',
     },
@@ -68,19 +110,29 @@ const StudentDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold text-gray-900">Student Dashboard</h2>
-        <p className="mt-1 text-sm text-gray-600">
-          Welcome back, {student?.name}
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900">Student Dashboard</h2>
+          <p className="mt-1 text-sm text-gray-600">
+            Welcome back, {student?.name} - Grade {student?.grade}
+          </p>
+        </div>
+        <div className="flex items-center space-x-3">
+          <img 
+            src={student?.avatar} 
+            alt={student?.name} 
+            className="w-12 h-12 rounded-full border-2 border-blue-100"
+          />
+        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="classes">My Classes</TabsTrigger>
           <TabsTrigger value="grades">My Grades</TabsTrigger>
-          <TabsTrigger value="attendance">My Attendance</TabsTrigger>
+          <TabsTrigger value="attendance">Attendance</TabsTrigger>
+          <TabsTrigger value="progress">Progress</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -109,70 +161,116 @@ const StudentDashboard = () => {
             })}
           </div>
 
-          {/* Recent Grades and Upcoming Classes */}
+          {/* Recent Activity and Quick Stats */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Recent Grades</CardTitle>
+                <CardTitle className="flex items-center space-x-2">
+                  <TrendingUp className="h-5 w-5" />
+                  <span>Recent Activity</span>
+                </CardTitle>
                 <CardDescription>
-                  Your latest test scores and assignments
+                  Your latest grades and attendance
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {studentGrades.slice(-5).map((grade) => {
-                    const cls = state.classes.find(c => c.id === grade.classId);
-                    const percentage = Math.round((grade.score / grade.maxScore) * 100);
-                    return (
-                      <div key={grade.id} className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">
-                            {cls?.name || grade.subject}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {grade.type.charAt(0).toUpperCase() + grade.type.slice(1)}
-                          </p>
+                  {recentActivity.map((activity, index) => (
+                    <div key={index} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+                      <div className="flex items-center space-x-3">
+                        <div className={`p-2 rounded-full ${
+                          activity.type === 'grade' ? 'bg-purple-100' : 'bg-blue-100'
+                        }`}>
+                          {activity.type === 'grade' ? 
+                            <FileText className="h-4 w-4 text-purple-600" /> : 
+                            <Calendar className="h-4 w-4 text-blue-600" />
+                          }
                         </div>
-                        <div className="text-right">
+                        <div>
                           <p className="text-sm font-medium">
-                            {grade.score}/{grade.maxScore}
+                            {activity.class?.name || 'Unknown Class'}
                           </p>
-                          <Badge className={
-                            percentage >= 90 ? 'bg-green-100 text-green-800' :
-                            percentage >= 80 ? 'bg-blue-100 text-blue-800' :
-                            percentage >= 70 ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          }>
-                            {percentage}%
-                          </Badge>
+                          <p className="text-xs text-gray-500">
+                            {activity.type === 'grade' ? 
+                              `${activity.data.type} - ${activity.data.score}/${activity.data.maxScore}` :
+                              `Attendance: ${activity.data.status}`
+                            }
+                          </p>
                         </div>
                       </div>
-                    );
-                  })}
+                      <div className="text-right">
+                        <p className="text-xs text-gray-500">{activity.date}</p>
+                        {activity.type === 'grade' && (
+                          <Badge className={
+                            (activity.data.score / activity.data.maxScore * 100) >= 90 ? 'bg-green-100 text-green-800' :
+                            (activity.data.score / activity.data.maxScore * 100) >= 80 ? 'bg-blue-100 text-blue-800' :
+                            (activity.data.score / activity.data.maxScore * 100) >= 70 ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }>
+                            {Math.round((activity.data.score / activity.data.maxScore) * 100)}%
+                          </Badge>
+                        )}
+                        {activity.type === 'attendance' && (
+                          <Badge className={
+                            activity.data.status === 'present' ? 'bg-green-100 text-green-800' :
+                            activity.data.status === 'late' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }>
+                            {activity.data.status}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {recentActivity.length === 0 && (
+                    <p className="text-gray-500 text-center py-4">No recent activity</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>My Classes</CardTitle>
+                <CardTitle className="flex items-center space-x-2">
+                  <Target className="h-5 w-5" />
+                  <span>Performance Summary</span>
+                </CardTitle>
                 <CardDescription>
-                  Classes you're currently enrolled in
+                  Your academic performance overview
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {enrolledClasses.map((cls) => {
-                    const teacher = state.teachers.find(t => t.id === cls.teacherId);
-                    return (
-                      <div key={cls.id} className="border border-gray-200 rounded-lg p-3">
-                        <h3 className="font-medium text-gray-900">{cls.name}</h3>
-                        <p className="text-sm text-gray-500">{cls.subject} - {cls.room}</p>
-                        <p className="text-sm text-gray-500">Teacher: {teacher?.name}</p>
-                        <p className="text-xs text-gray-400">{cls.schedule}</p>
-                      </div>
-                    );
-                  })}
+              <CardContent className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span>Overall Grade Average</span>
+                    <span className="font-medium">{gpaData.percentage}% ({gpaData.letter})</span>
+                  </div>
+                  <Progress value={gpaData.percentage || 0} className="h-2" />
+                </div>
+                
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span>Attendance Rate</span>
+                    <span className="font-medium">{attendanceData.rate}%</span>
+                  </div>
+                  <Progress value={attendanceData.rate === 'N/A' ? 0 : attendanceData.rate} className="h-2" />
+                </div>
+
+                <div className="pt-4 border-t space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Best Subject</span>
+                    <span className="font-medium">
+                      {enrolledClasses.length > 0 ? enrolledClasses[0].subject : 'N/A'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Total Classes</span>
+                    <span className="font-medium">{enrolledClasses.length}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Assessments Completed</span>
+                    <span className="font-medium">{studentGrades.length}</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -314,6 +412,68 @@ const StudentDashboard = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="progress" className="space-y-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Subject Performance</CardTitle>
+                <CardDescription>Your performance across different subjects</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {enrolledClasses.map(cls => {
+                  const classGrades = studentGrades.filter(g => g.classId === cls.id);
+                  const avgGrade = classGrades.length > 0 
+                    ? Math.round(classGrades.reduce((acc, g) => acc + (g.score / g.maxScore * 100), 0) / classGrades.length)
+                    : 0;
+                  
+                  return (
+                    <div key={cls.id}>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span>{cls.subject}</span>
+                        <span className="font-medium">{avgGrade}%</span>
+                      </div>
+                      <Progress value={avgGrade} className="h-2" />
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Academic Goals</CardTitle>
+                <CardDescription>Track your progress towards academic goals</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span>Target GPA: 3.5</span>
+                    <span className="font-medium">Current: {gpaData.gpa}</span>
+                  </div>
+                  <Progress value={parseFloat(gpaData.gpa) / 4 * 100 || 0} className="h-2" />
+                </div>
+                
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span>Attendance Goal: 95%</span>
+                    <span className="font-medium">Current: {attendanceData.rate}%</span>
+                  </div>
+                  <Progress value={attendanceData.rate === 'N/A' ? 0 : attendanceData.rate} className="h-2" />
+                </div>
+                
+                <div className="pt-4 border-t">
+                  <h4 className="font-medium mb-2">Recommendations</h4>
+                  <ul className="text-sm text-gray-600 space-y-1">
+                    <li>• Focus on improving attendance</li>
+                    <li>• Review latest assessment feedback</li>
+                    <li>• Schedule study sessions for upcoming tests</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

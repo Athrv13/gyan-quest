@@ -1,26 +1,36 @@
 
-import React, { useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   BookOpen, 
-  Menu, 
-  X, 
   Home, 
   Users, 
   User, 
   Calendar, 
   FileText, 
-  Settings,
   LogOut
 } from 'lucide-react';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+  useSidebar,
+} from "@/components/ui/sidebar";
 
 const Layout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
@@ -40,123 +50,96 @@ const Layout = () => {
     item.roles.includes(user?.role || '')
   );
 
-  const NavItem = ({ item }: { item: any }) => (
-    <button
-      onClick={() => {
-        navigate(item.href);
-        setSidebarOpen(false);
-      }}
-      className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900 w-full text-left"
-    >
-      <item.icon className="mr-3 flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
-      {item.name}
-    </button>
-  );
-
   return (
-    <div className="h-screen flex bg-gray-50">
-      {/* Mobile sidebar */}
-      <div className={`fixed inset-0 flex z-40 md:hidden ${sidebarOpen ? '' : 'hidden'}`}>
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
-        
-        <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white">
-          <div className="absolute top-0 right-0 -mr-12 pt-2">
-            <button
-              className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <X className="h-6 w-6 text-white" />
-            </button>
-          </div>
-          
-          <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-            <div className="flex-shrink-0 flex items-center px-4">
-              <BookOpen className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">EduAdmin</span>
-            </div>
-            <nav className="mt-5 px-2 space-y-1">
-              {filteredNavigation.map((item) => (
-                <NavItem key={item.name} item={item} />
-              ))}
-            </nav>
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop sidebar */}
-      <div className="hidden md:flex md:flex-shrink-0">
-        <div className="flex flex-col w-64">
-          <div className="flex flex-col h-0 flex-1 border-r border-gray-200 bg-white">
-            <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-              <div className="flex items-center flex-shrink-0 px-4">
-                <BookOpen className="h-8 w-8 text-blue-600" />
-                <span className="ml-2 text-xl font-bold text-gray-900">EduAdmin</span>
-              </div>
-              <nav className="mt-5 flex-1 px-2 space-y-1">
-                {filteredNavigation.map((item) => (
-                  <NavItem key={item.name} item={item} />
-                ))}
-              </nav>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div className="flex flex-col flex-1 overflow-hidden">
-        {/* Top navigation */}
-        <div className="relative z-10 flex-shrink-0 flex h-16 bg-white shadow">
-          <button
-            className="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 md:hidden"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-          
-          <div className="flex-1 px-4 flex justify-between">
-            <div className="flex-1 flex items-center">
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar 
+          navigation={filteredNavigation} 
+          user={user} 
+          onLogout={handleLogout}
+          currentPath={location.pathname}
+        />
+        <SidebarInset>
+          <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+            <div className="flex items-center gap-2 px-4">
+              <SidebarTrigger className="-ml-1" />
+              <div className="h-4 w-px bg-sidebar-border" />
               <h1 className="text-2xl font-semibold text-gray-900 capitalize">
                 {user?.role} Dashboard
               </h1>
             </div>
-            
-            <div className="ml-4 flex items-center md:ml-6 space-x-4">
-              <div className="flex items-center space-x-3">
-                <Avatar>
-                  <AvatarImage src={user?.avatar} />
-                  <AvatarFallback>
-                    {user?.name?.split(' ').map(n => n[0]).join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="hidden md:block">
-                  <div className="text-sm font-medium text-gray-900">{user?.name}</div>
-                  <div className="text-xs text-gray-500 capitalize">{user?.role}</div>
-                </div>
-              </div>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLogout}
-                className="flex items-center space-x-2"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden md:inline">Logout</span>
-              </Button>
-            </div>
+          </header>
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+            <Outlet />
           </div>
-        </div>
-
-        {/* Page content */}
-        <main className="flex-1 relative overflow-y-auto focus:outline-none">
-          <div className="py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-              <Outlet />
-            </div>
-          </div>
-        </main>
+        </SidebarInset>
       </div>
-    </div>
+    </SidebarProvider>
+  );
+};
+
+const AppSidebar = ({ navigation, user, onLogout, currentPath }) => {
+  const { state } = useSidebar();
+
+  return (
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <div className="flex items-center gap-2 px-2 py-2">
+          <BookOpen className="h-8 w-8 text-blue-600" />
+          {state === "expanded" && (
+            <span className="text-xl font-bold text-gray-900">Gyan Quest</span>
+          )}
+        </div>
+      </SidebarHeader>
+      
+      <SidebarContent>
+        <SidebarMenu>
+          {navigation.map((item) => (
+            <SidebarMenuItem key={item.name}>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === item.href}
+                tooltip={item.name}
+              >
+                <button
+                  onClick={() => window.location.href = item.href}
+                  className="flex items-center gap-2 w-full"
+                >
+                  <item.icon className="h-4 w-4" />
+                  <span>{item.name}</span>
+                </button>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarContent>
+
+      <SidebarFooter>
+        <div className="flex items-center gap-2 p-2">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={user?.avatar} />
+            <AvatarFallback>
+              {user?.name?.split(' ').map(n => n[0]).join('')}
+            </AvatarFallback>
+          </Avatar>
+          {state === "expanded" && (
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-gray-900 truncate">{user?.name}</div>
+              <div className="text-xs text-gray-500 capitalize">{user?.role}</div>
+            </div>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onLogout}
+            className="h-8 w-8 p-0"
+            title="Logout"
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
+        </div>
+      </SidebarFooter>
+    </Sidebar>
   );
 };
 

@@ -7,10 +7,15 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, Plus, Edit, Trash2, Users, Calendar } from 'lucide-react';
 import { toast } from "sonner";
+import Modal from '../common/Modal';
+import ClassForm from './ClassForm';
 
 const ClassList = () => {
   const { state, dispatch } = useData();
   const [searchTerm, setSearchTerm] = useState('');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingClass, setEditingClass] = useState(null);
 
   const filteredClasses = state.classes.filter(cls =>
     cls.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -22,6 +27,11 @@ const ClassList = () => {
       dispatch({ type: 'DELETE_CLASS', payload: classId });
       toast.success('Class deleted successfully');
     }
+  };
+
+  const handleEdit = (cls) => {
+    setEditingClass(cls);
+    setIsEditModalOpen(true);
   };
 
   const getTeacherName = (teacherId: string) => {
@@ -38,7 +48,10 @@ const ClassList = () => {
             Manage class schedules and assignments
           </p>
         </div>
-        <Button className="flex items-center space-x-2">
+        <Button 
+          className="flex items-center space-x-2"
+          onClick={() => setIsAddModalOpen(true)}
+        >
           <Plus className="h-4 w-4" />
           <span>Add Class</span>
         </Button>
@@ -108,7 +121,11 @@ const ClassList = () => {
                   </div>
                   
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleEdit(cls)}
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button 
@@ -126,6 +143,27 @@ const ClassList = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Add Class Modal */}
+      <Modal 
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)}
+        title="Add New Class"
+      >
+        <ClassForm onSuccess={() => setIsAddModalOpen(false)} />
+      </Modal>
+
+      {/* Edit Class Modal */}
+      <Modal 
+        isOpen={isEditModalOpen} 
+        onClose={() => setIsEditModalOpen(false)}
+        title="Edit Class"
+      >
+        <ClassForm 
+          classData={editingClass} 
+          onSuccess={() => setIsEditModalOpen(false)} 
+        />
+      </Modal>
     </div>
   );
 };
