@@ -9,6 +9,10 @@ interface User {
   avatar?: string;
 }
 
+interface DummyUser extends User {
+  password: string;
+}
+
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
@@ -19,7 +23,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Dummy users for authentication
-const dummyUsers: User[] = [
+const dummyUsers: DummyUser[] = [
   {
     id: '1',
     email: 'admin@school.com',
@@ -44,7 +48,7 @@ const dummyUsers: User[] = [
     role: 'student',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
   }
-] as any;
+];
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
