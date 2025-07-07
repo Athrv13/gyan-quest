@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, Edit, Users } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Users } from 'lucide-react';
+import { toast } from "sonner";
 
 const StudentList = () => {
   const { state, dispatch } = useData();
@@ -20,6 +21,20 @@ const StudentList = () => {
   });
 
   const grades = [...new Set(state.students.map(s => s.grade))].sort();
+
+  const handleDelete = (studentId: string) => {
+    if (window.confirm('Are you sure you want to delete this student?')) {
+      dispatch({ type: 'DELETE_STUDENT', payload: studentId });
+      toast.success('Student deleted successfully');
+    }
+  };
+
+  const getStudentGrades = (studentId: string) => {
+    const studentGrades = state.grades.filter(g => g.studentId === studentId);
+    if (studentGrades.length === 0) return 'No grades';
+    const average = studentGrades.reduce((acc, grade) => acc + (grade.score / grade.maxScore * 100), 0) / studentGrades.length;
+    return `${Math.round(average)}% avg`;
+  };
 
   return (
     <div className="space-y-6">
@@ -110,13 +125,23 @@ const StudentList = () => {
                       </Badge>
                       <p className="text-sm text-gray-500 mt-1">{student.class}</p>
                       <p className="text-xs text-gray-400">
-                        Enrolled: {student.enrollmentDate}
+                        {getStudentGrades(student.id)}
                       </p>
                     </div>
                     
-                    <Button variant="outline" size="sm">
-                      <Edit className="h-4 w-4" />
-                    </Button>
+                    <div className="flex space-x-2">
+                      <Button variant="outline" size="sm">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleDelete(student.id)}
+                        className="hover:bg-red-50 hover:text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
                 

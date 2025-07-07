@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +12,7 @@ import AdminDashboard from "./components/dashboard/AdminDashboard";
 import TeacherDashboard from "./components/dashboard/TeacherDashboard";
 import StudentDashboard from "./components/dashboard/StudentDashboard";
 import StudentList from "./components/students/StudentList";
+import TeacherList from "./components/teachers/TeacherList";
 
 const queryClient = new QueryClient();
 
@@ -59,10 +59,7 @@ const App = () => (
                 } />
                 <Route path="teachers" element={
                   <ProtectedRoute requiredRole="admin">
-                    <div className="p-8 text-center">
-                      <h2 className="text-2xl font-bold">Teachers Management</h2>
-                      <p className="text-gray-600 mt-2">Coming soon...</p>
-                    </div>
+                    <TeacherList />
                   </ProtectedRoute>
                 } />
                 <Route path="classes" element={
