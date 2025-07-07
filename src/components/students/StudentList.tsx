@@ -7,11 +7,16 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, Plus, Edit, Trash2, Users } from 'lucide-react';
 import { toast } from "sonner";
+import Modal from '../common/Modal';
+import StudentForm from './StudentForm';
 
 const StudentList = () => {
   const { state, dispatch } = useData();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGrade, setSelectedGrade] = useState('');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState(null);
 
   const filteredStudents = state.students.filter(student => {
     const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -27,6 +32,11 @@ const StudentList = () => {
       dispatch({ type: 'DELETE_STUDENT', payload: studentId });
       toast.success('Student deleted successfully');
     }
+  };
+
+  const handleEdit = (student) => {
+    setEditingStudent(student);
+    setIsEditModalOpen(true);
   };
 
   const getStudentGrades = (studentId: string) => {
@@ -45,7 +55,10 @@ const StudentList = () => {
             Manage student records and information
           </p>
         </div>
-        <Button className="flex items-center space-x-2">
+        <Button 
+          className="flex items-center space-x-2"
+          onClick={() => setIsAddModalOpen(true)}
+        >
           <Plus className="h-4 w-4" />
           <span>Add Student</span>
         </Button>
@@ -130,7 +143,11 @@ const StudentList = () => {
                     </div>
                     
                     <div className="flex space-x-2">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleEdit(student)}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button 
@@ -163,6 +180,27 @@ const StudentList = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Add Student Modal */}
+      <Modal 
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)}
+        title="Add New Student"
+      >
+        <StudentForm onSuccess={() => setIsAddModalOpen(false)} />
+      </Modal>
+
+      {/* Edit Student Modal */}
+      <Modal 
+        isOpen={isEditModalOpen} 
+        onClose={() => setIsEditModalOpen(false)}
+        title="Edit Student"
+      >
+        <StudentForm 
+          student={editingStudent} 
+          onSuccess={() => setIsEditModalOpen(false)} 
+        />
+      </Modal>
     </div>
   );
 };

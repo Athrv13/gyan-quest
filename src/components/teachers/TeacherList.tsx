@@ -7,10 +7,15 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, Plus, Edit, Trash2, Users } from 'lucide-react';
 import { toast } from "sonner";
+import Modal from '../common/Modal';
+import TeacherForm from './TeacherForm';
 
 const TeacherList = () => {
   const { state, dispatch } = useData();
   const [searchTerm, setSearchTerm] = useState('');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingTeacher, setEditingTeacher] = useState(null);
 
   const filteredTeachers = state.teachers.filter(teacher => 
     teacher.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -25,6 +30,11 @@ const TeacherList = () => {
     }
   };
 
+  const handleEdit = (teacher) => {
+    setEditingTeacher(teacher);
+    setIsEditModalOpen(true);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -34,7 +44,10 @@ const TeacherList = () => {
             Manage teacher records and information
           </p>
         </div>
-        <Button className="flex items-center space-x-2">
+        <Button 
+          className="flex items-center space-x-2"
+          onClick={() => setIsAddModalOpen(true)}
+        >
           <Plus className="h-4 w-4" />
           <span>Add Teacher</span>
         </Button>
@@ -103,7 +116,11 @@ const TeacherList = () => {
                     </div>
                     
                     <div className="flex space-x-2">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleEdit(teacher)}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button 
@@ -133,6 +150,27 @@ const TeacherList = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Add Teacher Modal */}
+      <Modal 
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)}
+        title="Add New Teacher"
+      >
+        <TeacherForm onSuccess={() => setIsAddModalOpen(false)} />
+      </Modal>
+
+      {/* Edit Teacher Modal */}
+      <Modal 
+        isOpen={isEditModalOpen} 
+        onClose={() => setIsEditModalOpen(false)}
+        title="Edit Teacher"
+      >
+        <TeacherForm 
+          teacher={editingTeacher} 
+          onSuccess={() => setIsEditModalOpen(false)} 
+        />
+      </Modal>
     </div>
   );
 };
