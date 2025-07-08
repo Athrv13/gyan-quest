@@ -65,7 +65,7 @@ const TeacherDashboard = () => {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Teacher Dashboard</h1>
         <p className="text-gray-600">Welcome back, {teacher?.name}</p>
@@ -90,14 +90,14 @@ const TeacherDashboard = () => {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Today's Classes</CardTitle>
+            <CardTitle>My Classes</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {teacherClasses.slice(0, 3).map((cls) => (
+              {teacherClasses.map((cls) => (
                 <div key={cls.id} className="flex items-center justify-between p-3 border rounded">
                   <div>
                     <div className="font-medium text-sm">{cls.name}</div>
@@ -115,7 +115,7 @@ const TeacherDashboard = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Recent Student Queries</CardTitle>
+            <CardTitle>Student Queries</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -139,11 +139,6 @@ const TeacherDashboard = () => {
                       </span>
                     </div>
                     <p className="text-sm text-gray-600 mb-2">{query.message}</p>
-                    {query.status === 'pending' && (
-                      <Button size="sm" variant="outline">
-                        Reply
-                      </Button>
-                    )}
                   </div>
                 );
               })}

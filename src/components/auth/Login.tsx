@@ -38,8 +38,15 @@ const Login = () => {
 
   const demoCredentials = [
     { role: 'Admin', email: 'admin@school.com', password: 'password123' },
-    { role: 'Teacher', email: 'teacher@school.com', password: 'password123' },
-    { role: 'Student', email: 'student@school.com', password: 'password123' }
+    { role: 'Dr. Sarah Johnson (Teacher)', email: 'sarah.johnson@school.edu', password: 'password123' },
+    { role: 'Mr. Michael Brown (Teacher)', email: 'michael.brown@school.edu', password: 'password123' },
+    { role: 'Ms. Emily Davis (Teacher)', email: 'emily.davis@school.edu', password: 'password123' },
+    { role: 'Mr. James Wilson (Teacher)', email: 'james.wilson@school.edu', password: 'password123' },
+    { role: 'Emma Thompson (Student)', email: 'emma.thompson@student.edu', password: 'password123' },
+    { role: 'Liam Rodriguez (Student)', email: 'liam.rodriguez@student.edu', password: 'password123' },
+    { role: 'Sophia Chen (Student)', email: 'sophia.chen@student.edu', password: 'password123' },
+    { role: 'Noah Williams (Student)', email: 'noah.williams@student.edu', password: 'password123' },
+    { role: 'Ava Johnson (Student)', email: 'ava.johnson@student.edu', password: 'password123' }
   ];
 
   const fillCredentials = (email: string, password: string) => {
@@ -121,7 +128,7 @@ const Login = () => {
         </Card>
 
         {/* Demo Credentials */}
-        <Card className="shadow-lg">
+        <Card className="shadow-lg max-h-80 overflow-y-auto">
           <CardHeader>
             <CardTitle className="text-sm">Demo Credentials</CardTitle>
             <CardDescription className="text-xs">
@@ -138,7 +145,7 @@ const Login = () => {
                 onClick={() => fillCredentials(cred.email, cred.password)}
               >
                 <div className="text-left">
-                  <div className="font-medium">{cred.role}</div>
+                  <div className="font-medium text-xs">{cred.role}</div>
                   <div className="text-xs text-gray-500">{cred.email}</div>
                 </div>
               </Button>

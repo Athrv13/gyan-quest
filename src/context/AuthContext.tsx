@@ -22,7 +22,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Dummy users for authentication
+// Expanded dummy users for authentication
 const dummyUsers: DummyUser[] = [
   {
     id: '1',
@@ -32,21 +32,79 @@ const dummyUsers: DummyUser[] = [
     role: 'admin',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
   },
+  // Teachers
   {
     id: '2',
-    email: 'teacher@school.com',
+    email: 'sarah.johnson@school.edu',
     password: 'password123',
-    name: 'Sarah Johnson',
+    name: 'Dr. Sarah Johnson',
     role: 'teacher',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face'
+    avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face'
   },
   {
     id: '3',
-    email: 'student@school.com',
+    email: 'michael.brown@school.edu',
     password: 'password123',
-    name: 'Alex Smith',
+    name: 'Mr. Michael Brown',
+    role: 'teacher',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
+  },
+  {
+    id: '4',
+    email: 'emily.davis@school.edu',
+    password: 'password123',
+    name: 'Ms. Emily Davis',
+    role: 'teacher',
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'
+  },
+  {
+    id: '5',
+    email: 'james.wilson@school.edu',
+    password: 'password123',
+    name: 'Mr. James Wilson',
+    role: 'teacher',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
+  },
+  // Students
+  {
+    id: '6',
+    email: 'emma.thompson@student.edu',
+    password: 'password123',
+    name: 'Emma Thompson',
+    role: 'student',
+    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face'
+  },
+  {
+    id: '7',
+    email: 'liam.rodriguez@student.edu',
+    password: 'password123',
+    name: 'Liam Rodriguez',
     role: 'student',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
+  },
+  {
+    id: '8',
+    email: 'sophia.chen@student.edu',
+    password: 'password123',
+    name: 'Sophia Chen',
+    role: 'student',
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'
+  },
+  {
+    id: '9',
+    email: 'noah.williams@student.edu',
+    password: 'password123',
+    name: 'Noah Williams',
+    role: 'student',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
+  },
+  {
+    id: '10',
+    email: 'ava.johnson@student.edu',
+    password: 'password123',
+    name: 'Ava Johnson',
+    role: 'student',
+    avatar: 'https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?w=150&h=150&fit=crop&crop=face'
   }
 ];
 

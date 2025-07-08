@@ -60,7 +60,7 @@ const StudentDashboard = () => {
   ];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Student Dashboard</h1>
         <p className="text-gray-600">Welcome back, {student?.name}</p>
@@ -118,7 +118,7 @@ const StudentDashboard = () => {
               {enrolledClasses.map((cls) => {
                 const teacher = state.teachers.find(t => t.id === cls.teacherId);
                 return (
-                  <div key={cls.id} className="p-2 rounded hover:bg-gray-50">
+                  <div key={cls.id} className="p-3 border rounded">
                     <div className="font-medium text-sm">{cls.name}</div>
                     <div className="text-xs text-gray-500">{cls.subject} • {teacher?.name}</div>
                     <div className="text-xs text-gray-500">{cls.schedule}</div>
@@ -140,7 +140,7 @@ const StudentDashboard = () => {
               const cls = state.classes.find(c => c.id === grade.classId);
               const percentage = Math.round((grade.score / grade.maxScore) * 100);
               return (
-                <div key={grade.id} className="flex items-center justify-between p-2 rounded hover:bg-gray-50">
+                <div key={grade.id} className="flex items-center justify-between p-3 border rounded">
                   <div>
                     <div className="font-medium text-sm">{cls?.name}</div>
                     <div className="text-xs text-gray-500">{grade.type} • {grade.date}</div>
