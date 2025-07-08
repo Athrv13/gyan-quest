@@ -60,22 +60,22 @@ const StudentDashboard = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Student Dashboard</h1>
+        <h1 className="text-2xl font-bold">Student Dashboard</h1>
         <p className="text-gray-600">Welcome back, {student?.name}</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
-            <Card key={stat.title} className="border-0 shadow-sm">
+            <Card key={stat.title}>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium text-gray-600">
                   {stat.title}
                 </CardTitle>
-                <Icon className={`h-5 w-5 ${stat.color}`} />
+                <Icon className={`h-4 w-4 ${stat.color}`} />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stat.value}</div>
@@ -86,9 +86,9 @@ const StudentDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Academic Progress</CardTitle>
+            <CardTitle>Academic Progress</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -109,16 +109,16 @@ const StudentDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-lg">My Classes</CardTitle>
+            <CardTitle>My Classes</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {enrolledClasses.map((cls) => {
                 const teacher = state.teachers.find(t => t.id === cls.teacherId);
                 return (
-                  <div key={cls.id} className="p-2 rounded-lg hover:bg-gray-50">
+                  <div key={cls.id} className="p-2 rounded hover:bg-gray-50">
                     <div className="font-medium text-sm">{cls.name}</div>
                     <div className="text-xs text-gray-500">{cls.subject} • {teacher?.name}</div>
                     <div className="text-xs text-gray-500">{cls.schedule}</div>
@@ -130,9 +130,9 @@ const StudentDashboard = () => {
         </Card>
       </div>
 
-      <Card className="border-0 shadow-sm">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Recent Grades</CardTitle>
+          <CardTitle>Recent Grades</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -140,10 +140,10 @@ const StudentDashboard = () => {
               const cls = state.classes.find(c => c.id === grade.classId);
               const percentage = Math.round((grade.score / grade.maxScore) * 100);
               return (
-                <div key={grade.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50">
+                <div key={grade.id} className="flex items-center justify-between p-2 rounded hover:bg-gray-50">
                   <div>
                     <div className="font-medium text-sm">{cls?.name}</div>
-                    <div className="text-xs text-gray-500">{grade.assignment} • {grade.date}</div>
+                    <div className="text-xs text-gray-500">{grade.type} • {grade.date}</div>
                   </div>
                   <div className="text-right">
                     <div className="font-medium text-sm">{grade.score}/{grade.maxScore}</div>
