@@ -13,7 +13,9 @@ import AdminDashboard from "./components/dashboard/AdminDashboard";
 import TeacherDashboard from "./components/dashboard/TeacherDashboard";
 import StudentDashboard from "./components/dashboard/StudentDashboard";
 import StudentList from "./components/students/StudentList";
+import StudentQueries from "./components/students/StudentQueries";
 import TeacherList from "./components/teachers/TeacherList";
+import TeacherStudentList from "./components/teachers/TeacherStudentList";
 import ClassList from "./components/classes/ClassList";
 import GradeList from "./components/grades/GradeList";
 import AttendanceList from "./components/attendance/AttendanceList";
@@ -37,11 +39,7 @@ const App = () => (
                 </ProtectedRoute>
               }>
                 <Route path="dashboard" element={<DashboardRouter />} />
-                <Route path="students" element={
-                  <ProtectedRoute requiredRole="admin">
-                    <StudentList />
-                  </ProtectedRoute>
-                } />
+                <Route path="students" element={<StudentsRouter />} />
                 <Route path="teachers" element={
                   <ProtectedRoute requiredRole="admin">
                     <TeacherList />
@@ -69,6 +67,21 @@ const DashboardRouter = () => {
       return <TeacherDashboard />;
     case 'student':
       return <StudentDashboard />;
+    default:
+      return <Navigate to="/login" replace />;
+  }
+};
+
+const StudentsRouter = () => {
+  const { user } = useAuth();
+
+  switch (user?.role) {
+    case 'admin':
+      return <StudentList />;
+    case 'teacher':
+      return <TeacherStudentList />;
+    case 'student':
+      return <StudentQueries />;
     default:
       return <Navigate to="/login" replace />;
   }

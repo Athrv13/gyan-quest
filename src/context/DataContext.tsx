@@ -59,12 +59,24 @@ export interface Attendance {
   status: 'present' | 'absent' | 'late';
 }
 
+interface StudentQuery {
+  id: string;
+  studentId: string;
+  teacherId: string;
+  classId: string;
+  message: string;
+  response?: string;
+  date: string;
+  status: 'pending' | 'answered';
+}
+
 interface DataState {
   students: Student[];
   teachers: Teacher[];
   classes: Class[];
   grades: Grade[];
   attendance: Attendance[];
+  studentQueries: StudentQuery[];
 }
 
 type DataAction =
@@ -80,9 +92,11 @@ type DataAction =
   | { type: 'ADD_GRADE'; payload: Grade }
   | { type: 'UPDATE_GRADE'; payload: Grade }
   | { type: 'ADD_ATTENDANCE'; payload: Attendance }
-  | { type: 'DELETE_ATTENDANCE'; payload: string };
+  | { type: 'UPDATE_ATTENDANCE'; payload: Attendance }
+  | { type: 'DELETE_ATTENDANCE'; payload: string }
+  | { type: 'ADD_STUDENT_QUERY'; payload: StudentQuery }
+  | { type: 'UPDATE_STUDENT_QUERY'; payload: StudentQuery };
 
-// Initial dummy data
 const initialState: DataState = {
   students: [
     {
@@ -154,6 +168,34 @@ const initialState: DataState = {
       parentName: 'Robert Johnson',
       parentPhone: '(555) 567-8902',
       enrollmentDate: '2023-09-01'
+    },
+    {
+      id: '6',
+      name: 'Mason Davis',
+      email: 'mason.davis@student.edu',
+      phone: '(555) 678-9012',
+      grade: '11',
+      class: 'History AP',
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
+      dateOfBirth: '2007-09-12',
+      address: '987 Birch St, Springfield',
+      parentName: 'Jennifer Davis',
+      parentPhone: '(555) 678-9013',
+      enrollmentDate: '2022-09-01'
+    },
+    {
+      id: '7',
+      name: 'Isabella Garcia',
+      email: 'isabella.garcia@student.edu',
+      phone: '(555) 789-0123',
+      grade: '10',
+      class: 'Art Studio',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
+      dateOfBirth: '2008-02-28',
+      address: '456 Willow Ave, Springfield',
+      parentName: 'Carlos Garcia',
+      parentPhone: '(555) 789-0124',
+      enrollmentDate: '2023-09-01'
     }
   ],
   teachers: [
@@ -164,7 +206,7 @@ const initialState: DataState = {
       phone: '(555) 111-2222',
       subject: 'Mathematics',
       experience: 8,
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+      avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face',
       qualification: 'PhD in Mathematics',
       classes: ['1', '2'],
       salary: 65000
@@ -212,10 +254,34 @@ const initialState: DataState = {
       phone: '(555) 555-6666',
       subject: 'Biology',
       experience: 15,
-      avatar: 'https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?w=150&h=150&fit=crop&crop=face',
+      avatar: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=150&h=150&fit=crop&crop=face',
       qualification: 'PhD in Biology',
       classes: ['8'],
       salary: 68000
+    },
+    {
+      id: '6',
+      name: 'Mr. Robert Taylor',
+      email: 'robert.taylor@school.edu',
+      phone: '(555) 666-7777',
+      subject: 'History',
+      experience: 9,
+      avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face',
+      qualification: 'MA in History',
+      classes: ['9'],
+      salary: 59000
+    },
+    {
+      id: '7',
+      name: 'Ms. Maria Gonzalez',
+      email: 'maria.gonzalez@school.edu',
+      phone: '(555) 777-8888',
+      subject: 'Art',
+      experience: 7,
+      avatar: 'https://images.unsplash.com/photo-1594736797933-d0401ba0ad65?w=150&h=150&fit=crop&crop=face',
+      qualification: 'MFA in Fine Arts',
+      classes: ['10'],
+      salary: 55000
     }
   ],
   classes: [
@@ -239,7 +305,7 @@ const initialState: DataState = {
       schedule: 'Tue, Thu 10:00-11:00 AM',
       room: 'Room 102',
       capacity: 25,
-      enrolledStudents: ['2']
+      enrolledStudents: ['2', '6']
     },
     {
       id: '3',
@@ -305,7 +371,29 @@ const initialState: DataState = {
       schedule: 'Mon, Wed, Fri 10:00-11:00 AM',
       room: 'Lab 501',
       capacity: 24,
-      enrolledStudents: ['5', '1']
+      enrolledStudents: ['5', '1', '7']
+    },
+    {
+      id: '9',
+      name: 'History AP',
+      grade: '11',
+      subject: 'History',
+      teacherId: '6',
+      schedule: 'Tue, Thu 2:00-3:00 PM',
+      room: 'Room 601',
+      capacity: 25,
+      enrolledStudents: ['6', '2']
+    },
+    {
+      id: '10',
+      name: 'Art Studio',
+      grade: '10',
+      subject: 'Art',
+      teacherId: '7',
+      schedule: 'Mon, Wed 3:00-4:00 PM',
+      room: 'Art Studio',
+      capacity: 20,
+      enrolledStudents: ['7']
     }
   ],
   grades: [
@@ -338,6 +426,26 @@ const initialState: DataState = {
       maxScore: 100,
       date: '2024-01-25',
       type: 'assignment'
+    },
+    {
+      id: '4',
+      studentId: '5',
+      classId: '8',
+      subject: 'Biology',
+      score: 89,
+      maxScore: 100,
+      date: '2024-01-30',
+      type: 'quiz'
+    },
+    {
+      id: '5',
+      studentId: '6',
+      classId: '9',
+      subject: 'History',
+      score: 91,
+      maxScore: 100,
+      date: '2024-02-01',
+      type: 'exam'
     }
   ],
   attendance: [
@@ -361,6 +469,41 @@ const initialState: DataState = {
       classId: '5',
       date: '2024-01-15',
       status: 'late'
+    },
+    {
+      id: '4',
+      studentId: '5',
+      classId: '8',
+      date: '2024-01-16',
+      status: 'present'
+    },
+    {
+      id: '5',
+      studentId: '6',
+      classId: '9',
+      date: '2024-01-16',
+      status: 'absent'
+    }
+  ],
+  studentQueries: [
+    {
+      id: '1',
+      studentId: '1',
+      teacherId: '1',
+      classId: '1',
+      message: 'I need help understanding quadratic equations.',
+      date: '2024-01-20',
+      status: 'pending'
+    },
+    {
+      id: '2',
+      studentId: '2',
+      teacherId: '2',
+      classId: '3',
+      message: 'Could you explain the concept of momentum again?',
+      response: 'Sure! Momentum is mass times velocity. We can discuss this in more detail after class.',
+      date: '2024-01-18',
+      status: 'answered'
     }
   ]
 };
@@ -417,10 +560,22 @@ const dataReducer = (state: DataState, action: DataAction): DataState => {
       };
     case 'ADD_ATTENDANCE':
       return { ...state, attendance: [...state.attendance, action.payload] };
+    case 'UPDATE_ATTENDANCE':
+      return {
+        ...state,
+        attendance: state.attendance.map(a => a.id === action.payload.id ? action.payload : a)
+      };
     case 'DELETE_ATTENDANCE':
       return {
         ...state,
         attendance: state.attendance.filter(att => att.id !== action.payload)
+      };
+    case 'ADD_STUDENT_QUERY':
+      return { ...state, studentQueries: [...state.studentQueries, action.payload] };
+    case 'UPDATE_STUDENT_QUERY':
+      return {
+        ...state,
+        studentQueries: state.studentQueries.map(q => q.id === action.payload.id ? action.payload : q)
       };
     default:
       return state;
@@ -451,3 +606,5 @@ export const useData = () => {
   }
   return context;
 };
+
+export type { StudentQuery };

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,9 @@ import {
   Calendar, 
   FileText, 
   LogOut,
-  Menu
+  Menu,
+  Clock
 } from 'lucide-react';
-import { useState } from 'react';
 
 const Layout = () => {
   const { user, logout } = useAuth();
@@ -27,7 +27,7 @@ const Layout = () => {
     { name: 'Teachers', href: '/teachers', icon: User, roles: ['admin'] },
     { name: 'Classes', href: '/classes', icon: Calendar, roles: ['admin', 'teacher'] },
     { name: 'Grades', href: '/grades', icon: FileText, roles: ['admin', 'teacher', 'student'] },
-    { name: 'Attendance', href: '/attendance', icon: Calendar, roles: ['admin', 'teacher', 'student'] },
+    { name: 'Attendance', href: '/attendance', icon: Clock, roles: ['admin', 'teacher', 'student'] },
   ];
 
   const filteredNavigation = navigation.filter(item => 
@@ -37,27 +37,27 @@ const Layout = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b h-16">
+      <header className="bg-white shadow-sm border-b h-14">
         <div className="flex items-center justify-between px-4 h-full">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="p-2"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-4 w-4" />
             </Button>
             <div className="flex items-center gap-2">
-              <BookOpen className="h-6 w-6 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">Gyan Quest</span>
+              <BookOpen className="h-5 w-5 text-blue-600" />
+              <span className="text-lg font-semibold text-gray-900">Gyan Quest</span>
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback>
+              <Avatar className="h-7 w-7">
+                <AvatarFallback className="text-xs">
                   {user?.name?.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
@@ -81,9 +81,9 @@ const Layout = () => {
       <div className="flex">
         {/* Sidebar */}
         <nav className={`bg-white shadow-sm transition-all duration-200 ${
-          sidebarOpen ? 'w-64' : 'w-16'
+          sidebarOpen ? 'w-56' : 'w-14'
         }`}>
-          <div className="p-4 space-y-2">
+          <div className="p-3 space-y-1">
             {filteredNavigation.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.href;
@@ -92,13 +92,13 @@ const Layout = () => {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
                     isActive 
                       ? 'bg-blue-50 text-blue-600 font-medium' 
                       : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
-                  <Icon className="h-5 w-5 flex-shrink-0" />
+                  <Icon className="h-4 w-4 flex-shrink-0" />
                   {sidebarOpen && <span>{item.name}</span>}
                 </Link>
               );
@@ -107,7 +107,7 @@ const Layout = () => {
         </nav>
 
         {/* Main Content */}
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-4">
           <Outlet />
         </main>
       </div>
