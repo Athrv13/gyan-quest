@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
@@ -6,6 +7,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Calendar, BookOpen, FileText, Clock, Award, TrendingUp, Target, User } from 'lucide-react';
+
+interface ActivityItem {
+  type: 'grade' | 'attendance';
+  date: string;
+  data: any;
+  class?: any;
+}
 
 const StudentDashboard = () => {
   const { state } = useData();
@@ -19,7 +27,7 @@ const StudentDashboard = () => {
   const enrolledClasses = state.classes.filter(c => c.enrolledStudents.includes(student?.id || ''));
 
   const calculateGPA = () => {
-    if (studentGrades.length === 0) return { gpa: 'N/A', letter: 'N/A' };
+    if (studentGrades.length === 0) return { gpa: 'N/A', letter: 'N/A', percentage: 0 };
     const totalPercentage = studentGrades.reduce((acc, grade) => acc + (grade.score / grade.maxScore * 100), 0);
     const avgPercentage = totalPercentage / studentGrades.length;
     const gpa = (avgPercentage / 25).toFixed(2); // Convert to 4.0 scale
@@ -41,25 +49,25 @@ const StudentDashboard = () => {
   };
 
   const getAttendanceRate = () => {
-    if (studentAttendance.length === 0) return { rate: 'N/A', present: 0, total: 0 };
+    if (studentAttendance.length === 0) return { rate: 0, present: 0, total: 0 };
     const presentCount = studentAttendance.filter(a => a.status === 'present').length;
     const rate = Math.round((presentCount / studentAttendance.length) * 100);
     return { rate, present: presentCount, total: studentAttendance.length };
   };
 
-  const getRecentActivity = () => {
+  const getRecentActivity = (): ActivityItem[] => {
     const recentGrades = studentGrades.slice(-5);
     const recentAttendance = studentAttendance.slice(-10);
     
-    const activity = [
+    const activity: ActivityItem[] = [
       ...recentGrades.map(grade => ({
-        type: 'grade',
+        type: 'grade' as const,
         date: grade.date,
         data: grade,
         class: state.classes.find(c => c.id === grade.classId)
       })),
       ...recentAttendance.map(att => ({
-        type: 'attendance',
+        type: 'attendance' as const,
         date: att.date,
         data: att,
         class: state.classes.find(c => c.id === att.classId)
@@ -245,7 +253,7 @@ const StudentDashboard = () => {
                     <span>Overall Grade Average</span>
                     <span className="font-medium">{gpaData.percentage}% ({gpaData.letter})</span>
                   </div>
-                  <Progress value={gpaData.percentage || 0} className="h-2" />
+                  <Progress value={gpaData.percentage} className="h-2" />
                 </div>
                 
                 <div>
@@ -253,7 +261,7 @@ const StudentDashboard = () => {
                     <span>Attendance Rate</span>
                     <span className="font-medium">{attendanceData.rate}%</span>
                   </div>
-                  <Progress value={attendanceData.rate === 'N/A' ? 0 : attendanceData.rate} className="h-2" />
+                  <Progress value={attendanceData.rate} className="h-2" />
                 </div>
 
                 <div className="pt-4 border-t space-y-2">
@@ -452,7 +460,7 @@ const StudentDashboard = () => {
                     <span>Target GPA: 3.5</span>
                     <span className="font-medium">Current: {gpaData.gpa}</span>
                   </div>
-                  <Progress value={parseFloat(gpaData.gpa) / 4 * 100 || 0} className="h-2" />
+                  <Progress value={parseFloat(gpaData.gpa.toString()) / 4 * 100 || 0} className="h-2" />
                 </div>
                 
                 <div>
@@ -460,7 +468,7 @@ const StudentDashboard = () => {
                     <span>Attendance Goal: 95%</span>
                     <span className="font-medium">Current: {attendanceData.rate}%</span>
                   </div>
-                  <Progress value={attendanceData.rate === 'N/A' ? 0 : attendanceData.rate} className="h-2" />
+                  <Progress value={attendanceData.rate} className="h-2" />
                 </div>
                 
                 <div className="pt-4 border-t">
