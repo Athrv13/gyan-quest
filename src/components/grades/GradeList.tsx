@@ -1,31 +1,59 @@
 
 import React, { useState } from 'react';
 import { useData } from '../../context/DataContext';
+import { useAuth } from '../../context/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, FileText, Filter } from 'lucide-react';
+import { Search, FileText, Filter, Edit, Plus } from 'lucide-react';
+import { toast } from "sonner";
+import Modal from '../common/Modal';
 
 const GradeList = () => {
-  const { state } = useData();
+  const { state, dispatch } = useData();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGrade, setSelectedGrade] = useState('');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingGrade, setEditingGrade] = useState(null);
 
-  const filteredGrades = state.grades.filter(grade => {
-    const student = state.students.find(s => s.id === grade.studentId);
-    const cls = state.classes.find(c => c.id === grade.classId);
-    
-    const matchesSearch = student?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         cls?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         grade.subject.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesGradeFilter = selectedGrade === '' || student?.grade === selectedGrade;
-    
-    return matchesSearch && matchesGradeFilter;
-  });
+  // Filter grades based on user role
+  const getFilteredGrades = () => {
+    let gradesToShow = state.grades;
 
+    if (user?.role === 'teacher') {
+      const teacher = state.teachers.find(t => t.email === user.email);
+      const teacherClasses = state.classes.filter(c => c.teacherId === teacher?.id);
+      gradesToShow = state.grades.filter(g => 
+        teacherClasses.some(c => c.id === g.classId)
+      );
+    } else if (user?.role === 'student') {
+      const student = state.students.find(s => s.email === user.email);
+      gradesToShow = state.grades.filter(g => g.studentId === student?.id);
+    }
+
+    return gradesToShow.filter(grade => {
+      const student = state.students.find(s => s.id === grade.studentId);
+      const cls = state.classes.find(c => c.id === grade.classId);
+      
+      const matchesSearch = student?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           cls?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           grade.subject.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesGradeFilter = selectedGrade === '' || student?.grade === selectedGrade;
+      
+      return matchesSearch && matchesGradeFilter;
+    });
+  };
+
+  const filteredGrades = getFilteredGrades();
   const grades = [...new Set(state.students.map(s => s.grade))].sort();
+
+  const handleEditGrade = (grade) => {
+    setEditingGrade(grade);
+    setIsEditModalOpen(true);
+  };
 
   const getStudentName = (studentId: string) => {
     const student = state.students.find(s => s.id === studentId);
@@ -48,13 +76,17 @@ const GradeList = () => {
     return 'bg-red-100 text-red-800';
   };
 
+  const canEdit = user?.role === 'admin' || user?.role === 'teacher';
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">Grades</h2>
+          <h2 className="text-3xl font-bold text-gray-900">
+            {user?.role === 'student' ? 'My Grades' : 'Grades'}
+          </h2>
           <p className="mt-1 text-sm text-gray-600">
-            View and manage student grades
+            {user?.role === 'student' ? 'View your academic performance' : 'View and manage student grades'}
           </p>
         </div>
       </div>
@@ -75,18 +107,20 @@ const GradeList = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="sm:w-48">
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedGrade}
-                onChange={(e) => setSelectedGrade(e.target.value)}
-              >
-                <option value="">All Grades</option>
-                {grades.map(grade => (
-                  <option key={grade} value={grade}>Grade {grade}</option>
-                ))}
-              </select>
-            </div>
+            {user?.role !== 'student' && (
+              <div className="sm:w-48">
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={selectedGrade}
+                  onChange={(e) => setSelectedGrade(e.target.value)}
+                >
+                  <option value="">All Grades</option>
+                  {grades.map(grade => (
+                    <option key={grade} value={grade}>Grade {grade}</option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -98,7 +132,7 @@ const GradeList = () => {
             <span>Grade Records</span>
           </CardTitle>
           <CardDescription>
-            {filteredGrades.length} of {state.grades.length} grade records
+            {filteredGrades.length} grade records
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -106,13 +140,14 @@ const GradeList = () => {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left p-3 font-medium">Student</th>
+                  {user?.role !== 'student' && <th className="text-left p-3 font-medium">Student</th>}
                   <th className="text-left p-3 font-medium">Class</th>
                   <th className="text-left p-3 font-medium">Subject</th>
                   <th className="text-left p-3 font-medium">Type</th>
                   <th className="text-left p-3 font-medium">Score</th>
                   <th className="text-left p-3 font-medium">Grade</th>
                   <th className="text-left p-3 font-medium">Date</th>
+                  {canEdit && <th className="text-left p-3 font-medium">Actions</th>}
                 </tr>
               </thead>
               <tbody>
@@ -120,7 +155,7 @@ const GradeList = () => {
                   const percentage = getGradePercentage(grade.score, grade.maxScore);
                   return (
                     <tr key={grade.id} className="border-b hover:bg-gray-50">
-                      <td className="p-3">{getStudentName(grade.studentId)}</td>
+                      {user?.role !== 'student' && <td className="p-3">{getStudentName(grade.studentId)}</td>}
                       <td className="p-3">{getClassName(grade.classId)}</td>
                       <td className="p-3">{grade.subject}</td>
                       <td className="p-3">
@@ -135,6 +170,17 @@ const GradeList = () => {
                         </Badge>
                       </td>
                       <td className="p-3">{grade.date}</td>
+                      {canEdit && (
+                        <td className="p-3">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditGrade(grade)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </td>
+                      )}
                     </tr>
                   );
                 })}
@@ -143,6 +189,43 @@ const GradeList = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Edit Grade Modal */}
+      <Modal 
+        isOpen={isEditModalOpen} 
+        onClose={() => setIsEditModalOpen(false)}
+        title="Edit Grade"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Score
+            </label>
+            <Input
+              type="number"
+              value={editingGrade?.score || ''}
+              onChange={(e) => setEditingGrade({...editingGrade, score: parseInt(e.target.value)})}
+            />
+          </div>
+          <div className="flex space-x-2">
+            <Button 
+              onClick={() => {
+                dispatch({ type: 'UPDATE_GRADE', payload: editingGrade });
+                toast.success('Grade updated successfully');
+                setIsEditModalOpen(false);
+              }}
+            >
+              Save Changes
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsEditModalOpen(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

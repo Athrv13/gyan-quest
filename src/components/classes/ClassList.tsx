@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { useData } from '../../context/DataContext';
+import { useAuth } from '../../context/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,15 +13,31 @@ import ClassForm from './ClassForm';
 
 const ClassList = () => {
   const { state, dispatch } = useData();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingClass, setEditingClass] = useState(null);
 
-  const filteredClasses = state.classes.filter(cls =>
-    cls.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cls.subject.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter classes based on user role
+  const getFilteredClasses = () => {
+    let classesToShow = state.classes;
+    
+    if (user?.role === 'teacher') {
+      const teacher = state.teachers.find(t => t.email === user.email);
+      classesToShow = state.classes.filter(c => c.teacherId === teacher?.id);
+    } else if (user?.role === 'student') {
+      const student = state.students.find(s => s.email === user.email);
+      classesToShow = state.classes.filter(c => c.enrolledStudents.includes(student?.id || ''));
+    }
+    
+    return classesToShow.filter(cls =>
+      cls.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      cls.subject.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  };
+
+  const filteredClasses = getFilteredClasses();
 
   const handleDelete = (classId: string) => {
     if (window.confirm('Are you sure you want to delete this class?')) {
@@ -39,22 +56,28 @@ const ClassList = () => {
     return teacher ? teacher.name : 'No teacher assigned';
   };
 
+  const canModify = user?.role === 'admin' || user?.role === 'teacher';
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">Classes</h2>
+          <h2 className="text-3xl font-bold text-gray-900">
+            {user?.role === 'teacher' ? 'My Classes' : user?.role === 'student' ? 'My Classes' : 'Classes'}
+          </h2>
           <p className="mt-1 text-sm text-gray-600">
-            Manage class schedules and assignments
+            {user?.role === 'admin' ? 'Manage class schedules and assignments' : 'View your class information'}
           </p>
         </div>
-        <Button 
-          className="flex items-center space-x-2"
-          onClick={() => setIsAddModalOpen(true)}
-        >
-          <Plus className="h-4 w-4" />
-          <span>Add Class</span>
-        </Button>
+        {user?.role === 'admin' && (
+          <Button 
+            className="flex items-center space-x-2"
+            onClick={() => setIsAddModalOpen(true)}
+          >
+            <Plus className="h-4 w-4" />
+            <span>Add Class</span>
+          </Button>
+        )}
       </div>
 
       <Card>
@@ -80,7 +103,7 @@ const ClassList = () => {
             <span>Class Directory</span>
           </CardTitle>
           <CardDescription>
-            {filteredClasses.length} of {state.classes.length} classes
+            {filteredClasses.length} classes
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -120,23 +143,27 @@ const ClassList = () => {
                     </div>
                   </div>
                   
-                  <div className="flex space-x-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleEdit(cls)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleDelete(cls.id)}
-                      className="hover:bg-red-50 hover:text-red-600"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  {canModify && (
+                    <div className="flex space-x-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleEdit(cls)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      {user?.role === 'admin' && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleDelete(cls.id)}
+                          className="hover:bg-red-50 hover:text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

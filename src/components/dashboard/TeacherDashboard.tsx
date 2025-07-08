@@ -1,15 +1,20 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Calendar, FileText, MessageSquare, CheckCircle, XCircle } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { Users, Calendar, FileText, MessageSquare, CheckCircle, XCircle, Send } from 'lucide-react';
 import { toast } from "sonner";
+import Modal from '../common/Modal';
 
 const TeacherDashboard = () => {
   const { state, dispatch } = useData();
   const { user } = useAuth();
+  const [isQueryModalOpen, setIsQueryModalOpen] = useState(false);
+  const [selectedQuery, setSelectedQuery] = useState(null);
+  const [response, setResponse] = useState('');
 
   const teacher = state.teachers.find(t => t.email === user?.email);
   const teacherClasses = state.classes.filter(c => c.teacherId === teacher?.id);
@@ -35,6 +40,25 @@ const TeacherDashboard = () => {
 
     dispatch({ type: 'ADD_ATTENDANCE', payload: attendance });
     toast.success(`Attendance marked as ${status}`);
+  };
+
+  const handleRespondToQuery = () => {
+    if (!response.trim()) {
+      toast.error('Please enter a response');
+      return;
+    }
+
+    const updatedQuery = {
+      ...selectedQuery,
+      response: response,
+      status: 'answered'
+    };
+
+    dispatch({ type: 'UPDATE_STUDENT_QUERY', payload: updatedQuery });
+    toast.success('Response sent successfully');
+    setIsQueryModalOpen(false);
+    setResponse('');
+    setSelectedQuery(null);
   };
 
   const stats = [
@@ -130,13 +154,27 @@ const TeacherDashboard = () => {
                         <div className="font-medium text-sm">{student?.name}</div>
                         <div className="text-xs text-gray-500">{cls?.name}</div>
                       </div>
-                      <span className={`text-xs px-2 py-1 rounded ${
-                        query.status === 'answered' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {query.status}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          query.status === 'answered' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {query.status}
+                        </span>
+                        {query.status === 'pending' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedQuery(query);
+                              setIsQueryModalOpen(true);
+                            }}
+                          >
+                            <MessageSquare className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                     <p className="text-sm text-gray-600 mb-2">{query.message}</p>
                   </div>
@@ -191,6 +229,48 @@ const TeacherDashboard = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Query Response Modal */}
+      <Modal 
+        isOpen={isQueryModalOpen} 
+        onClose={() => setIsQueryModalOpen(false)}
+        title="Respond to Query"
+      >
+        <div className="space-y-4">
+          <div className="bg-gray-50 rounded p-3">
+            <p className="font-medium text-sm mb-1">Student Query:</p>
+            <p className="text-sm">{selectedQuery?.message}</p>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Your Response
+            </label>
+            <textarea
+              className="w-full px-3 py-2 border border-gray-300 rounded-md h-24"
+              placeholder="Type your response here..."
+              value={response}
+              onChange={(e) => setResponse(e.target.value)}
+            />
+          </div>
+
+          <div className="flex space-x-2">
+            <Button 
+              onClick={handleRespondToQuery}
+              className="flex items-center space-x-2"
+            >
+              <Send className="h-4 w-4" />
+              <span>Send Response</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsQueryModalOpen(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
