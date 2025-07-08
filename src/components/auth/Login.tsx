@@ -42,11 +42,18 @@ const Login = () => {
     { role: 'Mr. Michael Brown (Teacher)', email: 'michael.brown@school.edu', password: 'password123' },
     { role: 'Ms. Emily Davis (Teacher)', email: 'emily.davis@school.edu', password: 'password123' },
     { role: 'Mr. James Wilson (Teacher)', email: 'james.wilson@school.edu', password: 'password123' },
+    { role: 'Prof. Lisa Anderson (Teacher)', email: 'lisa.anderson@school.edu', password: 'password123' },
+    { role: 'Dr. Robert Garcia (Teacher)', email: 'robert.garcia@school.edu', password: 'password123' },
     { role: 'Emma Thompson (Student)', email: 'emma.thompson@student.edu', password: 'password123' },
     { role: 'Liam Rodriguez (Student)', email: 'liam.rodriguez@student.edu', password: 'password123' },
     { role: 'Sophia Chen (Student)', email: 'sophia.chen@student.edu', password: 'password123' },
     { role: 'Noah Williams (Student)', email: 'noah.williams@student.edu', password: 'password123' },
-    { role: 'Ava Johnson (Student)', email: 'ava.johnson@student.edu', password: 'password123' }
+    { role: 'Ava Johnson (Student)', email: 'ava.johnson@student.edu', password: 'password123' },
+    { role: 'Mason Davis (Student)', email: 'mason.davis@student.edu', password: 'password123' },
+    { role: 'Isabella Miller (Student)', email: 'isabella.miller@student.edu', password: 'password123' },
+    { role: 'Ethan Wilson (Student)', email: 'ethan.wilson@student.edu', password: 'password123' },
+    { role: 'Olivia Brown (Student)', email: 'olivia.brown@student.edu', password: 'password123' },
+    { role: 'Lucas Garcia (Student)', email: 'lucas.garcia@student.edu', password: 'password123' }
   ];
 
   const fillCredentials = (email: string, password: string) => {
@@ -64,7 +71,7 @@ const Login = () => {
               <BookOpen className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">EduAdmin</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Gyan Quest</h1>
           <p className="text-gray-600">School Management System</p>
         </div>
 

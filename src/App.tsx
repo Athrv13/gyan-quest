@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +18,7 @@ import TeacherStudentList from "./components/teachers/TeacherStudentList";
 import ClassList from "./components/classes/ClassList";
 import GradeList from "./components/grades/GradeList";
 import AttendanceList from "./components/attendance/AttendanceList";
+import TeacherQueries from "./components/teachers/TeacherQueries";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +48,7 @@ const App = () => (
                 <Route path="classes" element={<ClassList />} />
                 <Route path="grades" element={<GradeList />} />
                 <Route path="attendance" element={<AttendanceList />} />
+                <Route path="queries" element={<QueriesRouter />} />
               </Route>
             </Routes>
           </BrowserRouter>
@@ -84,6 +85,19 @@ const StudentsRouter = () => {
       return <StudentQueries />;
     default:
       return <Navigate to="/login" replace />;
+  }
+};
+
+const QueriesRouter = () => {
+  const { user } = useAuth();
+
+  switch (user?.role) {
+    case 'teacher':
+      return <TeacherQueries />;
+    case 'student':
+      return <StudentQueries />;
+    default:
+      return <Navigate to="/dashboard" replace />;
   }
 };
 

@@ -65,6 +65,22 @@ const dummyUsers: DummyUser[] = [
     role: 'teacher',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
   },
+  {
+    id: '11',
+    email: 'lisa.anderson@school.edu',
+    password: 'password123',
+    name: 'Prof. Lisa Anderson',
+    role: 'teacher',
+    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face'
+  },
+  {
+    id: '12',
+    email: 'robert.garcia@school.edu',
+    password: 'password123',
+    name: 'Dr. Robert Garcia',
+    role: 'teacher',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
+  },
   // Students
   {
     id: '6',
@@ -105,6 +121,46 @@ const dummyUsers: DummyUser[] = [
     name: 'Ava Johnson',
     role: 'student',
     avatar: 'https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?w=150&h=150&fit=crop&crop=face'
+  },
+  {
+    id: '13',
+    email: 'mason.davis@student.edu',
+    password: 'password123',
+    name: 'Mason Davis',
+    role: 'student',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
+  },
+  {
+    id: '14',
+    email: 'isabella.miller@student.edu',
+    password: 'password123',
+    name: 'Isabella Miller',
+    role: 'student',
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'
+  },
+  {
+    id: '15',
+    email: 'ethan.wilson@student.edu',
+    password: 'password123',
+    name: 'Ethan Wilson',
+    role: 'student',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
+  },
+  {
+    id: '16',
+    email: 'olivia.brown@student.edu',
+    password: 'password123',
+    name: 'Olivia Brown',
+    role: 'student',
+    avatar: 'https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?w=150&h=150&fit=crop&crop=face'
+  },
+  {
+    id: '17',
+    email: 'lucas.garcia@student.edu',
+    password: 'password123',
+    name: 'Lucas Garcia',
+    role: 'student',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
   }
 ];
 

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Plus, Send } from 'lucide-react';
+import { MessageSquare, Plus, Send, ArrowDown, ArrowUp } from 'lucide-react';
 import { toast } from "sonner";
 import Modal from '../common/Modal';
 import type { StudentQuery } from '../../context/DataContext';
@@ -52,7 +52,7 @@ const StudentQueries = () => {
         <div>
           <h2 className="text-2xl font-bold text-gray-900">My Queries</h2>
           <p className="text-sm text-gray-600">
-            Questions and discussions with teachers
+            Questions and discussions with your teachers
           </p>
         </div>
         <Button 
@@ -69,7 +69,7 @@ const StudentQueries = () => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <MessageSquare className="h-4 w-4" />
-            <span>Recent Queries ({studentQueries.length})</span>
+            <span>My Conversations ({studentQueries.length})</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -80,9 +80,9 @@ const StudentQueries = () => {
               
               return (
                 <div key={query.id} className="border rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-2">
+                  <div className="flex justify-between items-start mb-3">
                     <div>
-                      <h4 className="font-medium text-sm">{cls?.name}</h4>
+                      <h4 className="font-medium text-sm">{cls?.name} - {cls?.subject}</h4>
                       <p className="text-xs text-gray-500">
                         To: {teacher?.name} • {query.date}
                       </p>
@@ -94,14 +94,32 @@ const StudentQueries = () => {
                     </Badge>
                   </div>
                   
-                  <div className="bg-gray-50 rounded p-3 mb-2">
-                    <p className="text-sm">{query.message}</p>
+                  {/* Student Message */}
+                  <div className="mb-3">
+                    <div className="flex items-start space-x-2">
+                      <ArrowUp className="h-4 w-4 text-blue-500 mt-1" />
+                      <div className="bg-blue-50 rounded-lg p-3 flex-1">
+                        <p className="text-sm font-medium text-blue-900 mb-1">Your Question:</p>
+                        <p className="text-sm text-blue-800">{query.message}</p>
+                      </div>
+                    </div>
                   </div>
                   
+                  {/* Teacher Response */}
                   {query.response && (
-                    <div className="bg-blue-50 rounded p-3">
-                      <p className="text-sm font-medium text-blue-900 mb-1">Teacher Response:</p>
-                      <p className="text-sm text-blue-800">{query.response}</p>
+                    <div className="flex items-start space-x-2">
+                      <ArrowDown className="h-4 w-4 text-green-500 mt-1" />
+                      <div className="bg-green-50 rounded-lg p-3 flex-1">
+                        <p className="text-sm font-medium text-green-900 mb-1">Teacher Response:</p>
+                        <p className="text-sm text-green-800">{query.response}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {!query.response && (
+                    <div className="flex items-center space-x-2 text-gray-500">
+                      <MessageSquare className="h-4 w-4" />
+                      <p className="text-xs">Waiting for teacher response...</p>
                     </div>
                   )}
                 </div>
@@ -139,7 +157,7 @@ const StudentQueries = () => {
                 const teacher = state.teachers.find(t => t.id === cls.teacherId);
                 return (
                   <option key={cls.id} value={cls.id}>
-                    {cls.name} - {teacher?.name}
+                    {cls.name} - {cls.subject} ({teacher?.name})
                   </option>
                 );
               })}
