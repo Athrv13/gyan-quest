@@ -20,15 +20,46 @@ import AttendanceList from "./components/attendance/AttendanceList";
 
 const queryClient = new QueryClient();
 
-const Dashboard = () => {
-  return (
-    <ProtectedRoute>
-      <DashboardContent />
-    </ProtectedRoute>
-  );
-};
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <AuthProvider>
+        <DataProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <Layout />
+                </ProtectedRoute>
+              }>
+                <Route path="dashboard" element={<DashboardRouter />} />
+                <Route path="students" element={
+                  <ProtectedRoute requiredRole="admin">
+                    <StudentList />
+                  </ProtectedRoute>
+                } />
+                <Route path="teachers" element={
+                  <ProtectedRoute requiredRole="admin">
+                    <TeacherList />
+                  </ProtectedRoute>
+                } />
+                <Route path="classes" element={<ClassList />} />
+                <Route path="grades" element={<GradeList />} />
+                <Route path="attendance" element={<AttendanceList />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </DataProvider>
+      </AuthProvider>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
-const DashboardContent = () => {
+const DashboardRouter = () => {
   const { user } = useAuth();
 
   switch (user?.role) {
@@ -42,52 +73,5 @@ const DashboardContent = () => {
       return <Navigate to="/login" replace />;
   }
 };
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <AuthProvider>
-        <DataProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="students" element={
-                  <ProtectedRoute requiredRole="admin">
-                    <StudentList />
-                  </ProtectedRoute>
-                } />
-                <Route path="teachers" element={
-                  <ProtectedRoute requiredRole="admin">
-                    <TeacherList />
-                  </ProtectedRoute>
-                } />
-                <Route path="classes" element={
-                  <ProtectedRoute>
-                    <ClassList />
-                  </ProtectedRoute>
-                } />
-                <Route path="grades" element={
-                  <ProtectedRoute>
-                    <GradeList />
-                  </ProtectedRoute>
-                } />
-                <Route path="attendance" element={
-                  <ProtectedRoute>
-                    <AttendanceList />
-                  </ProtectedRoute>
-                } />
-              </Route>
-            </Routes>
-          </BrowserRouter>
-        </DataProvider>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
 
 export default App;
